@@ -62,50 +62,70 @@ export default {
       }[type];
     },
 
-    isMulti(type) {
-      return ["bar", "line", "radar"].includes(type);
-    },
+    /* GROUP DATA BY LABEL */
+    groupByLabel(chart) {
+      const map = {};
+      const valueKeys = chart.valueKeys || [];
 
-    defaultColors() {
-      return [
-        "#321FDB",
-        "#E5533D",
-        "#2EB85C",
-        "#F9B115",
-        "#3399FF",
-        "#6F42C1",
-      ];
+      this.data.forEach((row) => {
+        const label = row[chart.labelKey];
+        if (!label) return;
+
+        if (!map[label]) {
+          map[label] = {};
+          valueKeys.forEach((k) => (map[label][k] = 0));
+        }
+
+        valueKeys.forEach((k) => {
+          map[label][k] += Number(row[k]) || 0;
+        });
+      });
+
+      return map;
     },
 
     labels(chart) {
       if (!this.data.length) return [];
+      return Object.keys(this.groupByLabel(chart));
+    },
 
-      return this.data.map((r) => r[chart.labelKey]);
+    autoColors(count) {
+      return Array.from(
+        { length: count },
+        (_, i) => `hsl(${(i * 360) / count}, 70%, 55%)`
+      );
     },
 
     datasets(chart) {
       if (!this.data.length) return [];
 
-      const palette = chart.colors && chart.colors.length
-        ? chart.colors
-        : this.defaultColors();
+      const grouped = this.groupByLabel(chart);
+      const labels = Object.keys(grouped);
 
-      // bar / line / radar
-      if (this.isMulti(chart.type)) {
-        return (chart.valueKeys || []).map((key, i) => ({
-          label: key,
-          data: this.data.map((r) => Number(r[key]) || 0),
-          backgroundColor: palette[i % palette.length],
-          borderColor: palette[i % palette.length],
-          fill: false,
-        }));
+      /* BAR / LINE / RADAR */
+      if (["bar", "line", "radar"].includes(chart.type)) {
+        const auto = this.autoColors(chart.valueKeys.length);
+
+        return chart.valueKeys.map((key, i) => {
+          const color =
+            chart.colors && chart.colors[i] ? chart.colors[i] : auto[i];
+
+          return {
+            label: key,
+            data: labels.map((l) => grouped[l][key]),
+            backgroundColor: color,
+            borderColor: color,
+            fill: false,
+          };
+        });
       }
 
-      // pie / doughnut / polarArea
+      /* PIE / DOUGHNUT / POLAR */
       return [
         {
-          data: this.data.map((r) => Number(r[chart.valueKey]) || 0),
-          backgroundColor: palette,
+          label: chart.name,
+          data: labels.map((l) => grouped[l][chart.valueKeys[0]]),
+          backgroundColor: this.autoColors(labels.length),
         },
       ];
     },

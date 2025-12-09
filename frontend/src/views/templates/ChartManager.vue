@@ -6,7 +6,6 @@
 
     <CCard v-for="(chart, i) in localCharts" :key="chart.id" class="mb-3">
       <CCardBody>
-
         <!-- META -->
         <CRow class="align-items-center">
           <CCol md="3">
@@ -14,8 +13,11 @@
           </CCol>
 
           <CCol md="2">
-            <CSelect :value="chart.type" :options="chartTypes"
-              @input="chart.type = $event" />
+            <CSelect
+              :value="chart.type"
+              :options="chartTypes"
+              @input="chart.type = $event"
+            />
           </CCol>
 
           <CCol md="3">
@@ -28,8 +30,13 @@
           </CCol>
 
           <CCol md="2" class="text-right mb-3">
-            <CButton size="sm" color="danger" variant="outline" class="d-flex"
-              @click="localCharts.splice(i,1)">
+            <CButton
+              size="sm"
+              color="danger"
+              variant="outline"
+              class="d-flex"
+              @click="localCharts.splice(i, 1)"
+            >
               Delete
             </CButton>
           </CCol>
@@ -37,37 +44,34 @@
 
         <!-- DATASETS -->
         <CRow>
+          <!-- MULTI DATASET -->
           <CCol md="12" v-if="isMulti(chart.type)">
             <div
               v-for="(key, k) in chart.valueKeys"
               :key="k"
               class="d-flex align-items-center position-relative"
             >
-              <!-- VALUE -->
               <CSelect
                 :value="key"
                 class="pt-3"
                 :options="numericKeys"
-                style="max-width:180px"
+                style="max-width: 180px"
                 @input="chart.valueKeys[k] = $event"
               />
 
-              <!-- COLOR INPUT -->
               <input
                 type="text"
                 class="form-control ml-2"
-                style="width:100px"
+                style="width: 100px"
                 v-model="chart.colors[k]"
               />
 
-              <!-- COLOR PREVIEW -->
               <div
                 class="color-box ml-2"
                 :style="{ backgroundColor: chart.colors[k] }"
                 @click="togglePicker(chart, k)"
               />
 
-              <!-- COLOR PICKER -->
               <div v-if="chart.showPicker[k]" class="picker-pop">
                 <chrome-picker
                   :value="chart.colors[k]"
@@ -92,18 +96,17 @@
             </CButton>
           </CCol>
 
-          <!-- SINGLE DATASET -->
+          <!-- SINGLE DATASET (FIXED) -->
           <CCol md="12" v-else>
             <CSelect
-              :value="chart.valueKey"
+              :value="chart.valueKeys[0]"
               :options="numericKeys"
               placeholder="Value"
-              style="max-width:240px"
-              @input="chart.valueKey = $event"
+              style="max-width: 240px"
+              @input="chart.valueKeys = [$event]"
             />
           </CCol>
         </CRow>
-
       </CCardBody>
     </CCard>
 
@@ -117,37 +120,54 @@
 
 <script>
 import {
-  CButton, CCard, CCardBody, CRow, CCol, CInput, CSelect
+  CButton,
+  CCard,
+  CCardBody,
+  CRow,
+  CCol,
+  CInput,
+  CSelect,
 } from "@coreui/vue";
 import { Chrome } from "vue-color";
 
 export default {
   components: {
-    CButton, CCard, CCardBody, CRow, CCol, CInput, CSelect,
-    "chrome-picker": Chrome
+    CButton,
+    CCard,
+    CCardBody,
+    CRow,
+    CCol,
+    CInput,
+    CSelect,
+    "chrome-picker": Chrome,
   },
 
   props: {
     data: Array,
-    charts: Array
+    charts: Array,
   },
 
   data() {
     return {
       localCharts: [],
-      chartTypes: ["bar","line","radar","pie","doughnut","polarArea"]
+      chartTypes: ["bar", "line", "radar", "pie", "doughnut", "polarArea"],
     };
   },
 
   computed: {
     dataKeys() {
-      return this.data.length ? Object.keys(this.data[0]) : [];
+      if (!Array.isArray(this.data) || !this.data.length) return [];
+      return Object.keys(this.data[0]);
     },
+
+    // ✅ FIX: numeric strings ARE numeric
     numericKeys() {
-      return this.data.length
-        ? this.dataKeys.filter(k => typeof this.data[0][k] === "number")
-        : [];
-    }
+      if (!this.data.length) return [];
+      return this.dataKeys.filter((k) => {
+        const v = this.data[0][k];
+        return v !== null && v !== "" && !isNaN(Number(v));
+      });
+    },
   },
 
   watch: {
@@ -155,32 +175,32 @@ export default {
       immediate: true,
       deep: true,
       handler(v) {
-        this.localCharts = JSON.parse(JSON.stringify(v));
-      }
-    }
+        this.localCharts = JSON.parse(JSON.stringify(v || []));
+      },
+    },
   },
 
   methods: {
     isMulti(type) {
-      return ["bar","line","radar"].includes(type);
+      return ["bar", "line", "radar"].includes(type);
     },
 
     addChart() {
+      if (!this.numericKeys.length || !this.dataKeys.length) return;
+
       this.localCharts.push({
         id: Date.now(),
         name: "New Chart",
         type: "bar",
-        labelKey: this.dataKeys[0] || "",
+        labelKey: "month",
         valueKeys: [this.numericKeys[0]],
         colors: ["#321FDB"],
         showPicker: [false],
-        valueKey: "",
-        style: "default"
       });
     },
 
     addDataset(chart) {
-      chart.valueKeys.push(this.numericKeys[0] || "");
+      chart.valueKeys.push(this.numericKeys[0]);
       chart.colors.push("#E5533D");
       chart.showPicker.push(false);
     },
@@ -199,8 +219,8 @@ export default {
 
     applyChanges() {
       this.$emit("update", JSON.parse(JSON.stringify(this.localCharts)));
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -215,7 +235,7 @@ export default {
 .picker-pop {
   position: absolute;
   z-index: 10;
-  top: 36px;
+  bottom: 70px;
   left: 110px;
 }
 </style>

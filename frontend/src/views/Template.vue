@@ -1,121 +1,75 @@
 <template>
   <div>
-    <!-- ================= UPLOAD PAGE ================= -->
-    <div v-if="view === 'upload'">
-      <DragDropUpload @file-selected="handleFileUpload" />
-
-      <!-- TEMPLATE SELECTOR MODAL -->
-      <CModal
-        :show="showTemplateSelector"
-        centered
-        backdrop
-        :no-close-on-backdrop="true"
-        size="xl"
-      >
-        <template #header>
-          <h5 class="modal-title">Select Template</h5>
-        </template>
-
-        <TemplateSelector
-          :data="uploadedData"
-          @select="onTemplateSelected"
-          @create="openBuilder"
-        />
-
-        <template #footer>
-          <CButton color="secondary" @click="showTemplateSelector = false">
-            Cancel
-          </CButton>
-        </template>
-      </CModal>
-
-      <!-- TEMPLATE BUILDER MODAL -->
-      <TemplateBuilderModal
-        :visible="showTemplateBuilder"
-        :data="uploadedData"
-        @close="closeBuilder"
-        @save="onTemplateSaved"
-      />
-    </div>
-
-    <!-- ================= DOCUMENT PREVIEW ================= -->
-    <DocumentPreview
-      v-if="view === 'preview'"
-      :template="selectedTemplate"
-      :data="uploadedData"
-      @back="goBackToUpload"
+    <!-- TEMPLATE LIST -->
+    <TemplateSelector
+      v-if="view === 'templates'"
+      @select="selectTemplate"
+      @create="openBuilder"
     />
+
+    <!-- BUILDER MODAL -->
+    <CModal
+      :show="showBuilder"
+      size="xl"
+      centered
+      :close-on-backdrop="false"
+    >
+      <template #header>
+        <h5>Create Template</h5>
+      </template>
+
+      <ApiSourcePanel @data="apiData = $event" />
+
+      <TemplateBuilder ref="builder" :data="apiData" />
+
+      <template #footer>
+        <CButton color="secondary" @click="showBuilder = false">
+          Cancel
+        </CButton>
+        <CButton color="success" @click="saveTemplate">
+          Save Template
+        </CButton>
+      </template>
+    </CModal>
   </div>
 </template>
 
 <script>
 import { CModal, CButton } from "@coreui/vue";
-import DragDropUpload from "./templates/DragDropUpload.vue";
 import TemplateSelector from "./templates/TemplateSelector.vue";
-import TemplateBuilderModal from "./templates/template.config.vue";
-import DocumentPreview from "./templates/DocumentPreview.vue";
+import TemplateBuilder from "./templates/template.config.vue";
+import ApiSourcePanel from "./templates/ApiSourcePanel.vue";
 
 export default {
-  name: "Template",
-
   components: {
     CModal,
     CButton,
-    DragDropUpload,
     TemplateSelector,
-    TemplateBuilderModal,
-    DocumentPreview,
+    TemplateBuilder,
+    ApiSourcePanel,
   },
 
   data() {
     return {
-      uploadedData: [],
-      showTemplateSelector: false,
-      showTemplateBuilder: false,
-      selectedTemplate: null,
-      view: "upload",
+      view: "templates",
+      showBuilder: false,
+      apiData: [],
     };
   },
 
   methods: {
-    handleFileUpload(file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.uploadedData = JSON.parse(e.target.result);
-        this.showTemplateSelector = true;
-      };
-      reader.readAsText(file);
-    },
-
-    // ✅ FIX HERE
     openBuilder() {
-      // 1) ปิด selector ก่อน
-      this.showTemplateSelector = false;
-
-      // 2) รอ DOM update แล้วค่อยเปิด builder
-      this.$nextTick(() => {
-        this.showTemplateBuilder = true;
-      });
+      this.showBuilder = true;
     },
 
-    closeBuilder() {
-      this.showTemplateBuilder = false;
+    saveTemplate() {
+      const payload = this.$refs.builder.getPayload();
+      console.log("Save to DB:", payload);
+      this.showBuilder = false;
     },
 
-    onTemplateSelected(template) {
-      this.selectedTemplate = template;
-      this.showTemplateSelector = false;
-      this.view = "preview";
-    },
-
-    onTemplateSaved(template) {
-      console.log("Saved template:", template);
-      this.showTemplateBuilder = false;
-    },
-
-    goBackToUpload() {
-      this.view = "upload";
-      this.selectedTemplate = null;
+    selectTemplate(template) {
+      console.log("Selected:", template);
     },
   },
 };
