@@ -5,13 +5,21 @@
       <h5>Template Configuration</h5>
 
       <CInput v-model="template.templateMeta.name" label="Template Name" />
-      <CTextarea v-model="template.templateMeta.description" rows="2" label="Template description"/>
+      <CTextarea
+        v-model="template.templateMeta.description"
+        rows="2"
+        label="Template description"
+      />
 
       <hr />
 
       <h6>Document Configuration</h6>
       <CInput v-model="template.documentMeta.name" label="Document Name" />
-      <CTextarea v-model="template.documentMeta.description" rows="2" label="Document description"/>
+      <CTextarea
+        v-model="template.documentMeta.description"
+        rows="2"
+        label="Document description"
+      />
       <CInput v-model="template.documentMeta.dataSource" label="Data Source" />
 
       <hr />
@@ -37,15 +45,17 @@
     <CCol md="6">
       <h5>Live Preview</h5>
 
-      <Crow>
+      <CRow>
         <CCard class="mb-4">
           <CCardBody>
             <h5>Document Name: {{ template.documentMeta.name }}</h5>
-            <small>Document Description: {{ template.documentMeta.description }}</small>
+            <small
+              >Document Description:
+              {{ template.documentMeta.description }}</small
+            >
           </CCardBody>
         </CCard>
-
-      </Crow>
+      </CRow>
       <GenericDataTable
         v-for="t in template.layout.tables"
         :key="t.id"
@@ -81,6 +91,7 @@ export default {
 
   props: {
     data: Array,
+    default: () => [],
   },
 
   data() {
@@ -97,6 +108,15 @@ export default {
   methods: {
     getPayload() {
       return JSON.parse(JSON.stringify(this.template));
+    },
+  },
+
+  watch: {
+    data: {
+      immediate: true,
+      handler(val) {
+        this.$forceUpdate();
+      },
     },
   },
 };

@@ -72,20 +72,25 @@ export default [
     },
   },
 
-  // ✅ NEW TEMPLATE (FULL MULTI-CHART)
+  /* =====================================================
+     ✅ NEW TEMPLATE (YOUR JSON — FIXED & NORMALIZED)
+     ===================================================== */
   {
     id: 3,
+
     templateMeta: {
-      name: "Test1",
-      description: "Test2",
+      name: "AB",
+      description: "CD",
       ownerDepartment: ["Finance", "IT"],
       status: true,
     },
+
     documentMeta: {
-      name: "Test3",
-      description: "Test4",
-      dataSource: "Test5",
+      name: "ASD",
+      description: "WEQW",
+      dataSource: "QWEdAS",
     },
+
     layout: {
       tables: [
         {
@@ -99,50 +104,56 @@ export default [
           ],
         },
       ],
+
       charts: [
         {
-          id: 1764789221110,
-          name: "Chart1",
+          id: 1765374539874,
+          name: "sdawd",
           type: "bar",
           labelKey: "month",
-          valueKeys: ["revenue", "profit", "units_sold"],
+          valueKeys: ["revenue", "profit"],
+          colors: ["#321FDB", "#E5533D"],
         },
         {
-          id: 1764789238619,
-          name: "Chart2",
+          id: 1765374654531,
+          name: "dasdwad",
           type: "line",
           labelKey: "month",
-          valueKeys: ["revenue", "profit", "units_sold"],
+          valueKeys: ["revenue", "profit"],
+          colors: ["#3E3874", "#B09692"],
         },
         {
-          id: 1764789273331,
-          name: "Chart3",
+          id: 1765374671945,
+          name: "dawdawdNew Chart",
           type: "radar",
           labelKey: "month",
-          valueKeys: ["revenue", "profit", "units_sold"],
+          valueKeys: ["revenue", "profit"],
+          colors: ["#321FDB", "#E5533D"],
         },
         {
-          id: 1764789313391,
-          name: "Chart4",
+          id: 1765374683092,
+          name: "dawd212312",
           type: "pie",
           labelKey: "month",
-          valueKey: "profit",
+          valueKeys: ["profit"], // ✅ FIXED
         },
         {
-          id: 1764789328997,
-          name: "Chart5",
+          id: 1765374692290,
+          name: "2sadwdasdwa",
           type: "doughnut",
           labelKey: "month",
-          valueKey: "profit",
+          valueKeys: ["revenue"], // ✅ FIXED
         },
         {
-          id: 1764789329256,
-          name: "Chart6",
+          id: 1765374709010,
+          name: "1212New Chart",
           type: "polarArea",
           labelKey: "month",
-          valueKey: "profit",
+          valueKeys: ["units_sold"], // ✅ FIXED
         },
       ],
     },
+
+    createdAt: "2025-12-10T13:47:47.624Z",
   },
 ];

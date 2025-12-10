@@ -1,34 +1,45 @@
 <template>
   <div>
-    <!-- TEMPLATE LIST -->
+    <!-- ================= TEMPLATE LIST ================= -->
     <TemplateSelector
-      v-if="view === 'templates'"
-      @select="selectTemplate"
+      v-if="!selectedTemplate"
+      :templates="templateData"
+      :data="currentData"
+      @select="useTemplate"
       @create="openBuilder"
     />
 
-    <!-- BUILDER MODAL -->
+    <!-- ================= DOCUMENT PREVIEW ================= -->
+    <div v-else>
+      <!-- API FOR DOCUMENT PREVIEW -->
+      <ApiSourcePanel class="mb-4" @loaded="setApiData" />
+
+      <DocumentPreview
+        :template="selectedTemplate"
+        :data="currentData"
+        @back="reset"
+      />
+    </div>
+
+    <!-- ================= TEMPLATE BUILDER MODAL ================= -->
     <CModal
-      :show="showBuilder"
+      :show="showTemplateBuilder"
       size="xl"
       centered
-      :close-on-backdrop="false"
+      :no-close-on-backdrop="true"
     >
       <template #header>
         <h5>Create Template</h5>
       </template>
 
-      <ApiSourcePanel @data="apiData = $event" />
+      <!-- API FOR TEMPLATE BUILDER -->
+      <ApiSourcePanel @loaded="setApiData" />
 
       <TemplateBuilder ref="builder" :data="apiData" />
 
       <template #footer>
-        <CButton color="secondary" @click="showBuilder = false">
-          Cancel
-        </CButton>
-        <CButton color="success" @click="saveTemplate">
-          Save Template
-        </CButton>
+        <CButton color="secondary" @click="closeBuilder"> Cancel </CButton>
+        <CButton color="success" @click="saveTemplate"> Save Template </CButton>
       </template>
     </CModal>
   </div>
@@ -36,9 +47,12 @@
 
 <script>
 import { CModal, CButton } from "@coreui/vue";
+
 import TemplateSelector from "./templates/TemplateSelector.vue";
 import TemplateBuilder from "./templates/template.config.vue";
 import ApiSourcePanel from "./templates/ApiSourcePanel.vue";
+import DocumentPreview from "./templates/DocumentPreview.vue";
+import { generateMockData } from "./templates/utils/mockData";
 
 export default {
   components: {
@@ -47,29 +61,100 @@ export default {
     TemplateSelector,
     TemplateBuilder,
     ApiSourcePanel,
+    DocumentPreview,
   },
 
   data() {
     return {
-      view: "templates",
-      showBuilder: false,
+      selectedTemplate: null,
+      showTemplateBuilder: false,
+
       apiData: [],
+      mockData: [],
     };
   },
 
+  computed: {
+    currentData() {
+      return this.apiData.length ? this.apiData : this.mockData;
+    },
+  },
+
   methods: {
+    /* ================= TEMPLATE FLOW ================= */
+
+    useTemplate(template) {
+      this.selectedTemplate = template;
+      this.mockData = generateMockData(template);
+      this.apiData = []; // reset API until user loads
+    },
+
+    reset() {
+      this.selectedTemplate = null;
+      this.apiData = [];
+      this.mockData = [];
+    },
+
+    /* ================= BUILDER MODAL ================= */
+
     openBuilder() {
-      this.showBuilder = true;
+      this.apiData = []; // clean start
+      this.showTemplateBuilder = true;
     },
 
-    saveTemplate() {
-      const payload = this.$refs.builder.getPayload();
-      console.log("Save to DB:", payload);
-      this.showBuilder = false;
+    closeBuilder() {
+      this.showTemplateBuilder = false;
     },
 
-    selectTemplate(template) {
-      console.log("Selected:", template);
+    async saveTemplate() {
+      try {
+        const payload = this.$refs.builder.getPayload();
+
+        if (!payload || !payload.templateMeta || !payload.layout) {
+          console.warn("Invalid template payload", payload);
+          return;
+        }
+
+        await this.$store.dispatch("templates/create", payload);
+
+        await this.$store.dispatch("templates/fetch");
+
+        this.showTemplateBuilder = false;
+
+        this.$refs.builder?.reset?.();
+      } catch (err) {
+        console.error("Save template failed", err);
+      }
+    },
+
+    /* ================= API DATA ================= */
+
+    setApiData(data) {
+      this.apiData = Array.isArray(data) ? data : [];
+    },
+  },
+
+  computed: {
+    templateData() {
+      return this.$store.getters["templates/items"] || [];
+    },
+
+    currentData() {
+      return this.apiData.length ? this.apiData : this.mockData;
+    },
+  },
+  mounted() {
+    this.$store.dispatch("templates/fetch");
+  },
+
+  watch: {
+    data: {
+      immediate: true,
+      handler(newData) {
+        if (!Array.isArray(newData) || !newData.length) {
+          this.localCharts = [];
+        }
+      },
     },
   },
 };

@@ -9,6 +9,7 @@ import Payment from  "@/store/modules/Payments/index";
 import Organization from "@/store/modules/organization";
 import Accounts from "@/store/modules/Accounts/index";
 import Authentication from "@/store/modules/Authentication/index";
+import Templates from "@/store/modules/templates/index";
 
 
 
@@ -61,6 +62,8 @@ export default new Vuex.Store({
     // // application
     //
     // application: Application,
+    templates : Templates,
+
 
   }
 });

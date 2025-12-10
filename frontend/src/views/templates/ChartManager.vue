@@ -107,13 +107,25 @@
             />
           </CCol>
         </CRow>
+        <!-- SHOW TABLE -->
+        <CRow class="mt-4">
+          <CCol md="12" class="d-flex align-items-center">
+            <CSwitch
+              class="mx-1"
+              color="primary"
+              variant="3d"
+              shape="square"
+              :checked="chart.showTable"
+              @update:checked="chart.showTable = $event"
+            />
+            <span class="ml-2">Show data table below chart</span>
+          </CCol>
+        </CRow>
       </CCardBody>
     </CCard>
 
     <div class="text-right">
-      <CButton color="success" @click="applyChanges">
-        Apply Charts
-      </CButton>
+      <CButton color="success" @click="applyChanges"> Apply Charts </CButton>
     </div>
   </div>
 </template>
@@ -127,6 +139,7 @@ import {
   CCol,
   CInput,
   CSelect,
+  CSwitch,
 } from "@coreui/vue";
 import { Chrome } from "vue-color";
 
@@ -139,6 +152,7 @@ export default {
     CCol,
     CInput,
     CSelect,
+    CSwitch,
     "chrome-picker": Chrome,
   },
 
@@ -196,6 +210,7 @@ export default {
         valueKeys: [this.numericKeys[0]],
         colors: ["#321FDB"],
         showPicker: [false],
+        showTable: false,
       });
     },
 

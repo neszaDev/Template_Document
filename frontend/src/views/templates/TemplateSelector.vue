@@ -1,4 +1,4 @@
-  <template>
+<template>
   <div>
     <CDataTable
       :items="tableItems"
@@ -72,22 +72,14 @@
         <CButton color="secondary" @click="showWarning = false">
           Cancel
         </CButton>
-        <CButton color="danger" @click="forceSelect">
-          Continue
-        </CButton>
+        <CButton color="danger" @click="forceSelect"> Continue </CButton>
       </template>
     </CModal>
   </div>
 </template>
 
 <script>
-import {
-  CDataTable,
-  CButton,
-  CModal,
-  CBadge,
-} from "@coreui/vue";
-import mockTemplates from "../../testData/mockTemplates";
+import { CDataTable, CButton, CModal, CBadge } from "@coreui/vue";
 
 export default {
   name: "TemplateSelector",
@@ -100,6 +92,10 @@ export default {
   },
 
   props: {
+    templates: {
+      type: Array,
+      required: true,
+    },
     data: {
       type: Array,
       default: () => [],
@@ -108,7 +104,6 @@ export default {
 
   data() {
     return {
-      templates: mockTemplates,
       showWarning: false,
       pendingTemplate: null,
 
@@ -165,20 +160,26 @@ export default {
         ...(c.valueKeys || []),
       ]);
 
-      return [...tableKeys, ...chartKeys].every((k) =>
-        dataKeys.includes(k)
-      );
+      return [...tableKeys, ...chartKeys].every((k) => dataKeys.includes(k));
     },
 
     useTemplate(template) {
       if (!template.templateMeta.status) return;
 
-      if (this.validateTemplate(template)) {
+      if (!this.data.length) {
         this.$emit("select", template);
-      } else {
+        return;
+      }
+
+      const isValid = this.validateTemplate(template);
+
+      if (!isValid) {
         this.pendingTemplate = template;
         this.showWarning = true;
+        return;
       }
+
+      this.$emit("select", template);
     },
 
     forceSelect() {
