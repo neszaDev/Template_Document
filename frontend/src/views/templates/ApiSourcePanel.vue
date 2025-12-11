@@ -1,7 +1,11 @@
 <template>
   <CCard class="mb-3">
     <CCardBody>
-      <CInput v-model="url" label="API URL" placeholder="https://api.example.com/data" />
+      <CInput
+        v-model="url"
+        label="API URL"
+        placeholder="https://api.example.com/data"
+      />
 
       <div class="mt-3 d-flex align-items-center">
         <CButton color="primary" :disabled="loading || !url" @click="preview">
@@ -44,9 +48,7 @@
           small
         />
 
-        <p class="text-muted mt-2">
-          Showing first 5 records only
-        </p>
+        <p class="text-muted mt-2">Showing first 5 records only</p>
       </div>
     </CCardBody>
   </CCard>
@@ -116,6 +118,7 @@ export default {
       this.successMessage = "Data applied to document.";
       this.errorMessage = "";
       this.$emit("loaded", this.previewData);
+      this.$emit("api-url", this.url);
     },
   },
 };

@@ -7,27 +7,27 @@ const ChartSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: ["bar", "line", "radar", "pie", "doughnut", "polarArea"],
-    required: true
+    required: true,
   },
 
   labelKey: { type: String, required: true },
 
   valueKeys: {
     type: [String],
-    default: []
+    default: [],
   },
 
   valueKey: {
     type: String,
-    default: ""
+    default: "",
   },
 
   colors: {
     type: [String],
-    default: []
+    default: [],
   },
 
-  style: { type: String, default: "default" }
+  style: { type: String, default: "default" },
 });
 
 /* Table schema */
@@ -60,6 +60,12 @@ const TemplateSchema = new mongoose.Schema(
     layout: {
       tables: [TableSchema],
       charts: [ChartSchema],
+    },
+
+    /* ADD THIS */
+    public: {
+      type: Boolean,
+      default: true,
     },
 
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

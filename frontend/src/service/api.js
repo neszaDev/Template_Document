@@ -72,6 +72,10 @@ export default {
     }
   },
 
+  fetchApi(url) {
+    return axios.get(url);
+  },
+
   authen(method, data, configs) {
     switch (method) {
       case "sign-in":

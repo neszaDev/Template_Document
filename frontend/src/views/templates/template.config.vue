@@ -5,21 +5,18 @@
       <h5>Template Configuration</h5>
 
       <CInput v-model="template.templateMeta.name" label="Template Name" />
-      <CTextarea
-        v-model="template.templateMeta.description"
-        rows="2"
-        label="Template description"
-      />
-
+      <div>
+        <p>Template description</p>
+        <RichTextEditor v-model="template.templateMeta.description" />
+      </div>
       <hr />
 
       <h6>Document Configuration</h6>
       <CInput v-model="template.documentMeta.name" label="Document Name" />
-      <CTextarea
-        v-model="template.documentMeta.description"
-        rows="2"
-        label="Document description"
-      />
+      <div>
+        <p>Document description</p>
+        <RichTextEditor v-model="template.documentMeta.description" />
+      </div>
       <CInput v-model="template.documentMeta.dataSource" label="Data Source" />
 
       <hr />
@@ -49,10 +46,10 @@
         <CCard class="mb-4">
           <CCardBody>
             <h5>Document Name: {{ template.documentMeta.name }}</h5>
-            <small
-              >Document Description:
-              {{ template.documentMeta.description }}</small
-            >
+            <div
+              class="ql-editor"
+              v-html="template.documentMeta.description"
+            ></div>
           </CCardBody>
         </CCard>
       </CRow>
@@ -78,6 +75,7 @@ import TableManager from "./table.config.vue";
 import ChartManager from "./ChartManager.vue";
 import GenericDataTable from "./GenericDataTable.vue";
 import ChartGenerator from "./chart.generate.vue";
+import RichTextEditor from "./RichTextEditor.vue";
 
 export default {
   name: "TemplateBuilder",
@@ -87,6 +85,7 @@ export default {
     ChartManager,
     GenericDataTable,
     ChartGenerator,
+    RichTextEditor,
   },
 
   props: {

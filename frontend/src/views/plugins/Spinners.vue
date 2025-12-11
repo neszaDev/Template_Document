@@ -19,7 +19,7 @@
           <CSpinner color="success" size="sm"/>
           <CSpinner color="info"/>
           <CSpinner
-            color="primary"
+            <!-- color="primary" -->
             style="width:4rem;height:4rem;"
           />
 

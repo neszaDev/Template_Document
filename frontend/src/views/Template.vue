@@ -12,11 +12,16 @@
     <!-- ================= DOCUMENT PREVIEW ================= -->
     <div v-else>
       <!-- API FOR DOCUMENT PREVIEW -->
-      <ApiSourcePanel class="mb-4" @loaded="setApiData" />
+      <ApiSourcePanel
+        class="mb-4"
+        @loaded="setApiData"
+        @api-url="apiUrl = $event"
+      />
 
       <DocumentPreview
         :template="selectedTemplate"
         :data="currentData"
+        :apiUrl="apiUrl"
         @back="reset"
       />
     </div>
@@ -33,7 +38,11 @@
       </template>
 
       <!-- API FOR TEMPLATE BUILDER -->
-      <ApiSourcePanel @loaded="setApiData" />
+      <ApiSourcePanel
+        class="mb-4"
+        @loaded="setApiData"
+        @api-url="apiUrl = $event"
+      />
 
       <TemplateBuilder ref="builder" :data="apiData" />
 
@@ -68,7 +77,7 @@ export default {
     return {
       selectedTemplate: null,
       showTemplateBuilder: false,
-
+      apiUrl: null,
       apiData: [],
       mockData: [],
     };

@@ -15,9 +15,10 @@
       <template #templateName="{ item }">
         <td>
           <strong>{{ item.templateMeta.name }}</strong>
-          <div class="text-muted small">
-            {{ item.templateMeta.description }}
-          </div>
+          <div
+            class="text-muted small"
+            v-html="item.templateMeta.description"
+          ></div>
         </td>
       </template>
 
@@ -47,6 +48,19 @@
             @click="useTemplate(item)"
           >
             Use
+          </CButton>
+        </td>
+      </template>
+      <!-- DELETE -->
+      <template #delete="{ item }">
+        <td class="text-center">
+          <CButton
+            size="sm"
+            color="danger"
+            :disabled="!item.templateMeta.status"
+            @click="deleteTemplate(item)"
+          >
+            <CIcon name="cil-trash" />
           </CButton>
         </td>
       </template>
@@ -124,6 +138,13 @@ export default {
           filter: false,
           _style: "width:110px;text-align:center;",
         },
+        {
+          key: "delete",
+          label: "",
+          sorter: false,
+          filter: false,
+          _style: "width:110px;text-align:center;",
+        },
       ],
     };
   },
@@ -186,6 +207,10 @@ export default {
       this.showWarning = false;
       this.$emit("select", this.pendingTemplate);
       this.pendingTemplate = null;
+    },
+
+    deleteTemplate(template) {
+      this.$emit("delete", template);
     },
   },
 };
