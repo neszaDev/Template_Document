@@ -14,7 +14,7 @@ export function generateMockData(template, rows = 8) {
     const row = {}
     keys.forEach(k => {
       if (k.toLowerCase().includes("month")) {
-        row[k] = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"][i % 8]
+        row[k] = ["Use Real Data","To See","Real Chart", "This's Example"][i % 4]
       } else {
         row[k] = Math.floor(Math.random() * 900) + 100
       }

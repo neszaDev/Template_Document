@@ -32,7 +32,6 @@ import {
   CChartDoughnut,
   CChartPolarArea,
 } from "@coreui/vue-chartjs";
-import { Tab } from "bootstrap";
 
 export default {
   name: "ChartGenerator",
@@ -50,14 +49,8 @@ export default {
   },
 
   props: {
-    data: {
-      type: Array,
-      default: () => [],
-    },
-    charts: {
-      type: Array,
-      default: () => [],
-    },
+    data: Array,
+    charts: Array,
   },
 
   methods: {
@@ -72,10 +65,9 @@ export default {
       }[type];
     },
 
-    /* GROUP DATA BY LABEL */
     groupByLabel(chart) {
       const map = {};
-      const valueKeys = chart.valueKeys || [];
+      const keys = chart.valueKeys || [];
 
       this.data.forEach((row) => {
         const label = row[chart.labelKey];
@@ -83,10 +75,10 @@ export default {
 
         if (!map[label]) {
           map[label] = {};
-          valueKeys.forEach((k) => (map[label][k] = 0));
+          keys.forEach((k) => (map[label][k] = 0));
         }
 
-        valueKeys.forEach((k) => {
+        keys.forEach((k) => {
           map[label][k] += Number(row[k]) || 0;
         });
       });
@@ -95,65 +87,62 @@ export default {
     },
 
     labels(chart) {
-      if (!this.data.length) return [];
       return Object.keys(this.groupByLabel(chart));
     },
 
-    autoColors(count) {
+    autoColors(n) {
       return Array.from(
-        { length: count },
-        (_, i) => `hsl(${(i * 360) / count}, 70%, 55%)`
+        { length: n },
+        (_, i) => `hsl(${(i * 360) / n}, 70%, 55%)`
       );
     },
 
     datasets(chart) {
-      if (!this.data || !this.data.length) return [];
-      if (!chart || !chart.type) return [];
-      if (!Array.isArray(chart.valueKeys) || !chart.valueKeys.length) return [];
-
       const grouped = this.groupByLabel(chart);
       const labels = Object.keys(grouped);
-      if (!labels.length) return [];
 
-      /* ================= MULTI DATASET ================= */
+      /* MULTI DATASET */
       if (["bar", "line", "radar"].includes(chart.type)) {
-        const auto = this.autoColors(chart.valueKeys.length);
+        return chart.valueKeys.map((k, i) => {
+          const color = chart.colors[i];
 
-        return chart.valueKeys.map((key, i) => ({
-          label: key,
-          data: labels.map((l) => grouped[l]?.[key] ?? 0),
-          backgroundColor:
-            chart.colors && chart.colors[i] ? chart.colors[i] : auto[i],
-          borderColor:
-            chart.colors && chart.colors[i] ? chart.colors[i] : auto[i],
-          fill: false,
-        }));
+          return {
+            label: k,
+            data: labels.map((l) => grouped[l][k]),
+            borderColor: color,
+
+            backgroundColor: chart.type === "bar" ? color : "transparent",
+
+            fill: chart.type === "bar",
+
+            tension: chart.type === "line" ? 0.4 : 0,
+            pointRadius: chart.type === "line" ? 4 : 3,
+          };
+        });
       }
 
-      /* ================= SINGLE DATASET ================= */
-      const valueKey = chart.valueKeys[0];
-      if (!valueKey) return [];
+      /* SINGLE DATASET WITH LABEL COLORS */
+      const colors =
+        chart.labelColors && chart.labelColors.length
+          ? chart.labelColors
+          : this.autoColors(labels.length);
 
       return [
         {
           label: chart.name,
-          data: labels.map((l) => grouped[l]?.[valueKey] ?? 0),
-          backgroundColor: this.autoColors(labels.length),
+          data: labels.map((l) => grouped[l][chart.valueKeys[0]]),
+          backgroundColor: colors,
+          borderColor: colors,
         },
       ];
     },
 
     tableData(chart) {
       const grouped = this.groupByLabel(chart);
-      const labels = Object.keys(grouped);
-
-      return labels.map((label) => {
-        const row = { [chart.labelKey]: label };
-        chart.valueKeys.forEach((k) => {
-          row[k] = grouped[label]?.[k] ?? 0;
-        });
-        return row;
-      });
+      return Object.keys(grouped).map((l) => ({
+        [chart.labelKey]: l,
+        ...grouped[l],
+      }));
     },
   },
 };

@@ -12,6 +12,11 @@ const ChartSchema = new mongoose.Schema({
 
   labelKey: { type: String, required: true },
 
+  labelColors: {
+    type: [String],
+    default: [],
+  },
+
   valueKeys: {
     type: [String],
     default: [],

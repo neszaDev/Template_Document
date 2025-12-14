@@ -96,7 +96,7 @@
             </CButton>
           </CCol>
 
-          <!-- SINGLE DATASET (FIXED) -->
+          <!-- SINGLE DATASET -->
           <CCol md="12" v-else>
             <CSelect
               :value="chart.valueKeys[0]"
@@ -107,6 +107,39 @@
             />
           </CCol>
         </CRow>
+
+        <!-- ✅ LABEL COLOR EDITOR (ONLY FOR PIE / DOUGHNUT / POLARAREA) -->
+        <CRow v-if="!isMulti(chart.type)" class="mt-3">
+          <CCol md="12">
+            <div
+              v-for="(label, idx) in labelsForChart(chart)"
+              :key="label"
+              class="d-flex align-items-center position-relative mb-2"
+            >
+              <span style="width: 80px">{{ label }}</span>
+
+              <input
+                class="form-control ml-2"
+                style="width: 100px"
+                v-model="chart.labelColors[idx]"
+              />
+
+              <div
+                class="color-box ml-2"
+                :style="{ backgroundColor: chart.labelColors[idx] }"
+                @click="toggleLabelPicker(chart, idx)"
+              />
+
+              <div v-if="chart.labelPicker[idx]" class="picker-pop">
+                <chrome-picker
+                  :value="chart.labelColors[idx]"
+                  @input="chart.labelColors[idx] = $event.hex"
+                />
+              </div>
+            </div>
+          </CCol>
+        </CRow>
+
         <!-- SHOW TABLE -->
         <CRow class="mt-4">
           <CCol md="12" class="d-flex align-items-center">
@@ -174,7 +207,6 @@ export default {
       return Object.keys(this.data[0]);
     },
 
-    // ✅ FIX: numeric strings ARE numeric
     numericKeys() {
       if (!this.data.length) return [];
       return this.dataKeys.filter((k) => {
@@ -190,6 +222,17 @@ export default {
       deep: true,
       handler(v) {
         this.localCharts = JSON.parse(JSON.stringify(v || []));
+
+        this.localCharts.forEach((chart) => {
+          if (!this.isMulti(chart.type)) {
+            if (!Array.isArray(chart.labelColors)) {
+              chart.labelColors = [];
+            }
+            if (!Array.isArray(chart.labelPicker)) {
+              chart.labelPicker = [];
+            }
+          }
+        });
       },
     },
   },
@@ -199,6 +242,36 @@ export default {
       return ["bar", "line", "radar"].includes(type);
     },
 
+    labelsForChart(chart) {
+      if (!this.data.length) return [];
+      const set = new Set();
+      this.data.forEach((r) => {
+        if (r[chart.labelKey]) set.add(r[chart.labelKey]);
+      });
+
+      const labels = [...set];
+
+      chart.labelColors ||= [];
+      chart.labelPicker ||= [];
+
+      while (chart.labelColors.length < labels.length) {
+        chart.labelColors.push(this.randomColor());
+        chart.labelPicker.push(false);
+      }
+
+      return labels;
+    },
+
+    randomColor() {
+      return `hsl(${Math.random() * 360}, 70%, 55%)`;
+    },
+
+    toggleLabelPicker(chart, i) {
+      chart.labelPicker = chart.labelPicker.map((v, idx) =>
+        idx === i ? !v : false
+      );
+    },
+
     addChart() {
       if (!this.numericKeys.length || !this.dataKeys.length) return;
 
@@ -206,10 +279,12 @@ export default {
         id: Date.now(),
         name: "New Chart",
         type: "bar",
-        labelKey: "month",
+        labelKey: this.dataKeys[0],
         valueKeys: [this.numericKeys[0]],
         colors: ["#321FDB"],
         showPicker: [false],
+        labelColors: [],
+        labelPicker: [],
         showTable: false,
       });
     },

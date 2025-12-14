@@ -12,6 +12,7 @@ const Dashboard = () => import("@/views/Dashboard");
 
 // Templates
 const Template = () => import("@/views/Template");
+const TemplateAndData = () => import("@/views/TemplateAndData");
 const SharedDocumentPreview = () => import("@/views/templates/SharedDocumentPreview.vue");
 
 const Colors = () => import("@/views/theme/Colors");
@@ -116,10 +117,29 @@ export default new Router({
         },
 
         {
-          path: "template",
-          name: "Template",
-          component: Template,
+          path: "Templates",
+          redirect: "/templates/templates",
+          name: "templates",
+          component: {
+            render(c) {
+              return c("router-view");
+            },
+          },
+          children: [
+            {
+              path: "templates",
+              name: "Templates",
+              component: Template,
+            },
+            {
+              path: "templateAndData",
+              name: "TemplateAndData",
+              component: TemplateAndData,
+            },
+          ],
         },
+        
+    
 
         {
           path: "theme",

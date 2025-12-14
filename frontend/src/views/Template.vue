@@ -1,13 +1,15 @@
 <template>
   <div>
     <!-- ================= TEMPLATE LIST ================= -->
-    <TemplateSelector
-      v-if="!selectedTemplate"
-      :templates="templateData"
-      :data="currentData"
-      @select="useTemplate"
-      @create="openBuilder"
-    />
+    <div  v-if="!selectedTemplate" class="bg-white px-4 py-2 rounded shadow-sm text-dark">
+      <h3 class="my-2 text-center">Template</h3>
+      <TemplateSelector
+        :templates="templateData"
+        :data="currentData"
+        @select="useTemplate"
+        @create="openBuilder"
+      />
+    </div>
 
     <!-- ================= DOCUMENT PREVIEW ================= -->
     <div v-else>

@@ -9,7 +9,7 @@
       table-filter
       sorter
       pagination
-      :items-per-page="5"
+      :items-per-page="10"
     >
       <!-- TEMPLATE COLUMN -->
       <template #templateName="{ item }">
@@ -52,7 +52,7 @@
         </td>
       </template>
       <!-- DELETE -->
-      <template #delete="{ item }">
+      <!-- <template #delete="{ item }">
         <td class="text-center">
           <CButton
             size="sm"
@@ -63,7 +63,7 @@
             <CIcon name="cil-trash" />
           </CButton>
         </td>
-      </template>
+      </template> -->
     </CDataTable>
 
     <!-- CREATE BUTTON -->
@@ -138,13 +138,13 @@ export default {
           filter: false,
           _style: "width:110px;text-align:center;",
         },
-        {
-          key: "delete",
-          label: "",
-          sorter: false,
-          filter: false,
-          _style: "width:110px;text-align:center;",
-        },
+        // {
+        //   key: "delete",
+        //   label: "",
+        //   sorter: false,
+        //   filter: false,
+        //   _style: "width:110px;text-align:center;",
+        // },
       ],
     };
   },
