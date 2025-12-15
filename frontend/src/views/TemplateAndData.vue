@@ -1,29 +1,57 @@
 <template>
-    <div>
-        <quill-editor
-        :value="value"
-        @input="onInput"
-        />
-    </div>
-</template>
-<script>
-import Vue from "vue";
-import VueQuillEditor from "vue-quill-editor";
-import "quill/dist/quill.snow.css";
-Vue.use(VueQuillEditor);
-export default {
-  name: "RichTextEditor",
+  <div class="p-3 bg-white rounded shadow-sm">
+    <h3 class="mb-3 text-center">Template & Data</h3>
 
-  props: {
-    value: {
-      type: String,
-      default: "",
-    },
+    <TemplateAndDataSelector
+      :items="items"
+      @open="openItem"
+      @share="shareItem"
+    />
+  </div>
+</template>
+
+<script>
+import TemplateAndDataSelector from "./templates/TemplateAndDataSelector.vue";
+import Service from "@/service/api";
+
+export default {
+  name: "TemplateAndData",
+
+  components: {
+    TemplateAndDataSelector,
+  },
+
+  data() {
+    return {
+      items: [],
+      loading: true,
+      error: null,
+    };
+  },
+
+  async mounted() {
+    try {
+      const res = await Service.templateAndData("get");
+      this.items = res.data?.data || [];
+    } catch (err) {
+      console.error(err);
+      this.error = "Failed to load Template & Data list";
+    } finally {
+      this.loading = false;
+    }
   },
 
   methods: {
-    onInput(content) {
-      this.$emit("input", content); 
+    openItem(item) {
+      this.$router.push(
+        `/shared/document/${item._id}`
+      );
+    },
+
+    shareItem(item) {
+      const url = `${window.location.origin}/shared/document/${item._id}`;
+      navigator.clipboard.writeText(url);
+      alert("Share link copied");
     },
   },
 };

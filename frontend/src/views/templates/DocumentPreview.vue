@@ -9,40 +9,37 @@
               ← Back
             </CButton>
           </CCol>
-          <CCol>
+          <CCol class="text-right">
             <CButton
-              color="primary"
-              size="sm"
-              @click="openShare"
-              class="float-right"
+              color="success"
+              :disabled="saving"
+              @click="saveTemplateAndData"
             >
-              Share
+              {{ saving ? "Saving..." : "Save & Share" }}
             </CButton>
           </CCol>
         </CRow>
       </CCardHeader>
-      <!-- ================= WARNINGS ================= -->
-      <div v-if="missingFields.length" class="alert alert-danger p-3 mb-4">
-        <h5 class="mb-2">⚠ Missing Required Fields</h5>
-        <p>
-          The API data does not contain the fields required by this template.
-        </p>
 
+      <!-- ================= API URL WARNING ================= -->
+      <div v-if="apiUrlError" class="alert alert-danger p-3 mb-0 rounded-0">
+        ⚠ API URL is required before saving this document.
+      </div>
+
+      <!-- ================= MISSING FIELDS WARNING ================= -->
+      <div
+        v-if="missingFields.length"
+        class="alert alert-warning p-3 mb-0 rounded-0"
+      >
+        <h6 class="mb-2">Missing Required Fields</h6>
         <ul class="mb-0">
           <li v-for="f in missingFields" :key="f">{{ f }}</li>
         </ul>
-
-        <p class="mt-3 mb-0 text-muted">
-          Charts and tables may not display correctly until these fields exist
-          in the API response.
-        </p>
       </div>
 
-      <CCardBody class="d-flex align-items-center">
-        <div>
-          <h4 class="mb-0">{{ documentTitle }}</h4>
-          <div v-html="documentDescription"></div>
-        </div>
+      <CCardBody>
+        <h4 class="mb-0">{{ documentTitle }}</h4>
+        <div v-html="documentDescription"></div>
       </CCardBody>
     </CCard>
 
@@ -60,24 +57,42 @@
       <CCardHeader>
         <strong>{{ chart.name }}</strong>
       </CCardHeader>
-
       <CCardBody>
         <ChartGenerator :data="data" :charts="[chart]" />
       </CCardBody>
     </CCard>
-    <CModal :show.sync="showShare" title="Share Document">
-      <div>
-        <CInput :value="shareUrl" readonly />
-        <CButton color="success" class="mt-2" @click="copy">
-          Copy Link
+
+    <!-- ================= SUCCESS MODAL ================= -->
+    <CModal :show="showSuccess" centered>
+      <template #header>
+        <h5>Saved Successfully</h5>
+      </template>
+
+      <p class="mb-2">Your document has been saved and is ready to share.</p>
+
+      <template #footer>
+        <CButton color="secondary" @click="showSuccess = false">
+          Close
         </CButton>
-      </div>
+        <CButton color="primary" @click="goToTemplateAndData">
+          Open Document
+        </CButton>
+      </template>
     </CModal>
   </div>
 </template>
 
 <script>
-import { CCard, CCardBody, CCardHeader, CButton } from "@coreui/vue";
+import {
+  CCard,
+  CCardBody,
+  CCardHeader,
+  CButton,
+  CModal,
+  CRow,
+  CCol,
+} from "@coreui/vue";
+
 import GenericDataTable from "./GenericDataTable.vue";
 import ChartGenerator from "./chart.generate";
 
@@ -89,6 +104,9 @@ export default {
     CCardBody,
     CCardHeader,
     CButton,
+    CModal,
+    CRow,
+    CCol,
     GenericDataTable,
     ChartGenerator,
   },
@@ -101,11 +119,12 @@ export default {
 
   data() {
     return {
-      showShare: false,
-
-      // NEW: validation states
       missingFields: [],
       requiredFields: [],
+      apiUrlError: false,
+      showSuccess: false,
+      createdId: null,
+      saving: false,
     };
   },
 
@@ -122,34 +141,18 @@ export default {
     charts() {
       return this.template?.layout?.charts || [];
     },
-
-    shareUrl() {
-      return `${window.location.origin}/shared/document/${
-        this.template._id
-      }?api=${encodeURIComponent(this.apiUrl)}`;
-    },
   },
 
   methods: {
-    openShare() {
-      this.showShare = true;
-    },
-
-    copy() {
-      navigator.clipboard.writeText(this.shareUrl);
-    },
-
-    /* ================== REQUIRED FIELD EXTRACTION ================== */
+    /* ================= REQUIRED FIELD EXTRACTION ================= */
 
     extractRequiredFields() {
       const fields = new Set();
 
-      // tables
       this.template?.layout?.tables?.forEach((t) => {
         t.fields.forEach((f) => fields.add(f.key));
       });
 
-      // charts
       this.template?.layout?.charts?.forEach((c) => {
         fields.add(c.labelKey);
         c.valueKeys.forEach((v) => fields.add(v));
@@ -158,10 +161,10 @@ export default {
       this.requiredFields = [...fields];
     },
 
-    /* ================== MISSING FIELD DETECTION ================== */
+    /* ================= MISSING FIELD CHECK ================= */
 
     checkMissingFields() {
-      if (!Array.isArray(this.data) || !this.data.length) {
+      if (!this.data?.length) {
         this.missingFields = [];
         return;
       }
@@ -169,9 +172,51 @@ export default {
       const sample = this.data[0];
       this.missingFields = this.requiredFields.filter((f) => !(f in sample));
     },
+
+    /* ================= SAVE ================= */
+    async saveTemplateAndData() {
+      if (this.saving) return;
+      this.saving = true;
+
+      try {
+        if (!this.apiUrl) {
+          this.apiUrlError = true;
+          return;
+        }
+
+        if (!this.template?._id) return;
+
+        const payload = {
+          templateId: this.template._id,
+          dataSource: this.apiUrl,
+          dataMeta: {
+            fields: this.data.length ? Object.keys(this.data[0]) : [],
+            lastFetchedAt: new Date(),
+          },
+        };
+
+        const created = await this.$store.dispatch(
+          "templateAndData/create",
+          payload
+        );
+
+        if (!created?._id) return;
+
+        this.createdId = created._id;
+        this.showSuccess = true;
+      } catch (err) {
+        console.error("Save TemplateAndData failed", err);
+      } finally {
+        this.saving = false; 
+      }
+    },
+
+    goToTemplateAndData() {
+      this.showSuccess = false;
+      this.$router.push(`/templates/TemplateAndData`);
+    },
   },
 
-  /* ================== WATCHERS (MUST BE OUTSIDE methods!) ================== */
   watch: {
     data: {
       handler() {
@@ -180,7 +225,6 @@ export default {
       },
       immediate: true,
     },
-
     template: {
       handler() {
         this.extractRequiredFields();

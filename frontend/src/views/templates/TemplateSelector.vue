@@ -70,25 +70,6 @@
     <CButton color="primary" block class="mt-3" @click="$emit('create')">
       + Create New Template
     </CButton>
-
-    <!-- WARNING MODAL -->
-    <CModal :show="showWarning" :centered="true">
-      <template #header>
-        <h3 class="modal-title">Data Mismatch</h3>
-      </template>
-
-      <p class="m-0">
-        Some fields in this template do not exist in the uploaded data.
-      </p>
-      <p>Do you want to continue anyway?</p>
-
-      <template #footer>
-        <CButton color="secondary" @click="showWarning = false">
-          Cancel
-        </CButton>
-        <CButton color="danger" @click="forceSelect"> Continue </CButton>
-      </template>
-    </CModal>
   </div>
 </template>
 
@@ -150,7 +131,6 @@ export default {
   },
 
   computed: {
-    /* 🔑 FLATTEN DATA FOR TABLE */
     tableItems() {
       return this.templates.map((t) => ({
         ...t,

@@ -3,49 +3,47 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 
 import DialogMessages from "./modules/Dialog/index";
-import Setting from './modules/Setting/index'
+import Setting from "./modules/Setting/index";
 
-import Payment from  "@/store/modules/Payments/index";
+import Payment from "@/store/modules/Payments/index";
 import Organization from "@/store/modules/organization";
 import Accounts from "@/store/modules/Accounts/index";
 import Authentication from "@/store/modules/Authentication/index";
 import Templates from "@/store/modules/templates/index";
-
-
+import TemplateAndData from "@/store/modules/templateAndData/index";
 
 const state = {
-  sidebarShow: 'responsive',
+  sidebarShow: "responsive",
   sidebarMinimize: false,
   asideShow: false,
-  darkMode: false
-}
+  darkMode: false,
+};
 
 const mutations = {
-  toggleSidebarDesktop (state) {
-    const sidebarOpened = [true, 'responsive'].includes(state.sidebarShow)
-    state.sidebarShow = sidebarOpened ? false : 'responsive'
+  toggleSidebarDesktop(state) {
+    const sidebarOpened = [true, "responsive"].includes(state.sidebarShow);
+    state.sidebarShow = sidebarOpened ? false : "responsive";
   },
-  toggleSidebarMobile (state) {
-    const sidebarClosed = [false, 'responsive'].includes(state.sidebarShow)
-    state.sidebarShow = sidebarClosed ? true : 'responsive'
+  toggleSidebarMobile(state) {
+    const sidebarClosed = [false, "responsive"].includes(state.sidebarShow);
+    state.sidebarShow = sidebarClosed ? true : "responsive";
   },
-  set (state, [variable, value]) {
-    state[variable] = value
+  set(state, [variable, value]) {
+    state[variable] = value;
   },
-  toggle (state, variable) {
-    state[variable] = !state[variable]
-  }
-}
-
+  toggle(state, variable) {
+    state[variable] = !state[variable];
+  },
+};
 
 export default new Vuex.Store({
   state,
   mutations,
-  modules : {
-      dialog: DialogMessages,
-      setting : Setting,
-      payment : Payment,
-      organization : Organization,
+  modules: {
+    dialog: DialogMessages,
+    setting: Setting,
+    payment: Payment,
+    organization: Organization,
     //
     //
     // campus : Campus,
@@ -53,8 +51,8 @@ export default new Vuex.Store({
     // departent : Departments,
     //
     //
-      auth : Authentication,
-    account : Accounts,
+    auth: Authentication,
+    account: Accounts,
     //
     // roles : settingRoles,
     //
@@ -62,8 +60,7 @@ export default new Vuex.Store({
     // // application
     //
     // application: Application,
-    templates : Templates,
-
-
-  }
+    templates: Templates,
+    templateAndData: TemplateAndData,
+  },
 });

@@ -72,6 +72,28 @@ export default {
     }
   },
 
+  templateAndData(method, data) {
+    switch (method) {
+      case "get":
+        return instance.get("/api/v1/templates/templateAndData/");
+
+      case "get-one":
+        return instance.get(`/api/v1/templates/templateAndData/${data}`);
+
+      case "fetch-data":
+        return instance.get(`/api/v1/templates/templateAndData/${data}/data`);
+
+      case "post":
+        return instance.post("/api/v1/templates/templateAndData", data);
+
+      case "delete":
+        return instance.delete("/api/v1/templates/templateAndData", { data });
+
+      default:
+        throw new Error("Unknown templateAndData API method");
+    }
+  },
+
   fetchApi(url) {
     return axios.get(url);
   },
