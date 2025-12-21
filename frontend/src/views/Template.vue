@@ -86,6 +86,10 @@ export default {
   },
 
   computed: {
+    templateData() {
+      return this.$store.getters["templates/items"] || [];
+    },
+
     currentData() {
       return this.apiData.length ? this.apiData : this.mockData;
     },
@@ -97,7 +101,7 @@ export default {
     useTemplate(template) {
       this.selectedTemplate = template;
       this.mockData = generateMockData(template);
-      this.apiData = []; // reset API until user loads
+      this.apiData = [];
     },
 
     reset() {
@@ -109,7 +113,7 @@ export default {
     /* ================= BUILDER MODAL ================= */
 
     openBuilder() {
-      this.apiData = []; // clean start
+      this.apiData = [];
       this.showTemplateBuilder = true;
     },
 
@@ -118,24 +122,14 @@ export default {
     },
 
     async saveTemplate() {
-      try {
-        const payload = this.$refs.builder.getPayload();
+      const payload = this.$refs.builder.getPayload();
+      if (!payload) return;
 
-        if (!payload || !payload.templateMeta || !payload.layout) {
-          console.warn("Invalid template payload", payload);
-          return;
-        }
+      await this.$store.dispatch("templates/create", payload);
+      await this.$store.dispatch("templates/fetch");
 
-        await this.$store.dispatch("templates/create", payload);
-
-        await this.$store.dispatch("templates/fetch");
-
-        this.showTemplateBuilder = false;
-
-        this.$refs.builder?.reset?.();
-      } catch (err) {
-        console.error("Save template failed", err);
-      }
+      this.showTemplateBuilder = false;
+      this.$refs.builder?.reset?.();
     },
 
     /* ================= API DATA ================= */
@@ -145,28 +139,9 @@ export default {
     },
   },
 
-  computed: {
-    templateData() {
-      return this.$store.getters["templates/items"] || [];
-    },
-
-    currentData() {
-      return this.apiData.length ? this.apiData : this.mockData;
-    },
-  },
   mounted() {
     this.$store.dispatch("templates/fetch");
   },
-
-  watch: {
-    data: {
-      immediate: true,
-      handler(newData) {
-        if (!Array.isArray(newData) || !newData.length) {
-          this.localCharts = [];
-        }
-      },
-    },
-  },
 };
 </script>
+
