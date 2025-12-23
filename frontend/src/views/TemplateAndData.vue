@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import TemplateAndDataSelector from "./templates/TemplateAndDataSelector.vue";
+import TemplateAndDataSelector from "./templates/templateAndData.selector.vue";
 import Service from "@/service/api";
 
 export default {

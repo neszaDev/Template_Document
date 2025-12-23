@@ -1,6 +1,7 @@
 <template>
   <CCard class="mb-3">
     <CCardBody>
+      <!-- URL INPUT -->
       <CInput
         v-model="url"
         label="API URL"
@@ -8,6 +9,7 @@
       />
 
       <div class="mt-3 d-flex align-items-center">
+        <!-- PREVIEW DATA -->
         <CButton color="primary" :disabled="loading || !url" @click="preview">
           Preview Data
         </CButton>

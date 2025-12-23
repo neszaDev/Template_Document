@@ -32,7 +32,7 @@
       <!-- DATA SOURCE -->
       <template #source>
         <td>
-          <CBadge color="info">Bound</CBadge>
+          <CBadge color="info">Data Source</CBadge>
         </td>
       </template>
 

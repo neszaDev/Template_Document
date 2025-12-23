@@ -59,10 +59,10 @@
 <script>
 import { CModal, CButton } from "@coreui/vue";
 
-import TemplateSelector from "./templates/TemplateSelector.vue";
+import TemplateSelector from "./templates/template.selector.vue";
 import TemplateBuilder from "./templates/template.config.vue";
 import ApiSourcePanel from "./templates/ApiSourcePanel.vue";
-import DocumentPreview from "./templates/DocumentPreview.vue";
+import DocumentPreview from "./templates/document.preview.vue";
 import { generateMockData } from "./templates/utils/mockData";
 
 export default {

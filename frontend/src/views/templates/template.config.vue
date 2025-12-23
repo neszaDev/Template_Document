@@ -72,8 +72,8 @@
 
 <script>
 import TableManager from "./table.config.vue";
-import ChartManager from "./ChartManager.vue";
-import GenericDataTable from "./GenericDataTable.vue";
+import ChartManager from "./chart.config.vue";
+import GenericDataTable from "./table.advance.generate.vue";
 import ChartGenerator from "./chart.generate.vue";
 import RichTextEditor from "./RichTextEditor.vue";
 

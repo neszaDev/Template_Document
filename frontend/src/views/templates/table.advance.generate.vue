@@ -90,7 +90,7 @@ export default {
     filteredItems() {
       let data = [...this.items];
 
-      /* ✅ GLOBAL SEARCH */
+      /* GLOBAL SEARCH */
       if (this.tableFilterValue) {
         const search = this.tableFilterValue.toLowerCase();
         data = data.filter((row) =>
@@ -101,7 +101,7 @@ export default {
         );
       }
 
-      /* ✅ COLUMN FILTER */
+      /* COLUMN FILTER */
       Object.entries(this.columnFilterValue || {}).forEach(
         ([key, value]) => {
           if (!value) return;

@@ -48,7 +48,7 @@
 
 <script>
 import { CCard, CCardBody, CSpinner } from "@coreui/vue";
-import GenericDataTable from "@/views/templates/GenericDataTable.vue";
+import GenericDataTable from "@/views/templates/table.advance.generate.vue";
 import ChartGenerator from "@/views/templates/chart.generate.vue";
 import Service from "@/service/api";
 

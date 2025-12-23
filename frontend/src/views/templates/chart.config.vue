@@ -108,7 +108,7 @@
           </CCol>
         </CRow>
 
-        <!-- ✅ LABEL COLOR EDITOR (ONLY FOR PIE / DOUGHNUT / POLARAREA) -->
+        <!-- LABEL COLOR EDITOR (ONLY FOR PIE / DOUGHNUT / POLARAREA) -->
         <CRow v-if="!isMulti(chart.type)" class="mt-3">
           <CCol md="12">
             <div

@@ -33,6 +33,11 @@ const ChartSchema = new mongoose.Schema({
   },
 
   style: { type: String, default: "default" },
+
+  showTable: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 /* Table schema */

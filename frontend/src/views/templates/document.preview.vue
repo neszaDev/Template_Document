@@ -93,7 +93,7 @@ import {
   CCol,
 } from "@coreui/vue";
 
-import GenericDataTable from "./GenericDataTable.vue";
+import GenericDataTable from "./table.advance.generate.vue";
 import ChartGenerator from "./chart.generate";
 
 export default {

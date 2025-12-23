@@ -13,7 +13,7 @@ const Dashboard = () => import("@/views/Dashboard");
 // Templates
 const Template = () => import("@/views/Template");
 const TemplateAndData = () => import("@/views/TemplateAndData");
-const SharedDocumentPreview = () => import("@/views/templates/SharedDocumentPreview.vue");
+const SharedDocumentPreview = () => import("@/views/templates/document.preview.shared.vue");
 
 const Colors = () => import("@/views/theme/Colors");
 const Typography = () => import("@/views/theme/Typography");
